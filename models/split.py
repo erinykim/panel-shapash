@@ -16,3 +16,4 @@ class Split():
             self.train_size, 
             self.random_state
         )
+        
