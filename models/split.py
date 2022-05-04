@@ -13,7 +13,6 @@ class Split():
         return train_test_split(
             self.X_df, 
             self.y_df, 
-            self.train_size, 
-            self.random_state
+            train_size = self.train_size, 
+            random_state = self.random_state
         )
-        
