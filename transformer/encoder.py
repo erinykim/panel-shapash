@@ -8,7 +8,7 @@ class Encoder():
     def call(self):
         cat_features = self._get_cat_features()
         encoder = self._get_encoder(cat_features)
-        return self._encode_X(encoder)
+        return encoder, self._encode_X(encoder)
 
     def _get_cat_features(self):
         return [col for col in self.X_df.columns if self.X_df[col].dtype == 'object']
