@@ -1,8 +1,10 @@
+import panel as pn
 from shapash import SmartExplainer
 
 from loader.data_loader import DataLoader
 from transformer.encoder import Encoder
 from models import split, model_fit
+
 
 X_df, y_df, house_dict = DataLoader().call()
 encoder, X_df_encoded = Encoder(X_df).call()
@@ -17,3 +19,48 @@ xpl = SmartExplainer(
 
 xpl.compile(x = X_test, y_pred = y_pred)
 
+pn.extension('plotly')
+
+logo = "assets/shapash-resize.png"
+material = pn.template.MaterialTemplate(logo=logo, title='Shapash Panel Application', sidebar_width=200)
+
+text = "<h1>Panel Application for Shapash!<h1>"
+header = pn.Row(text)
+
+plot_features_pane = pn.pane.Plotly(
+    xpl.plot.features_importance(),
+    config={'responsive': True}
+)
+
+@pn.depends(plot_features_pane.param.click_data)
+def contribution_plot(click_data):
+    if click_data:
+        plot = pn.pane.Plotly(
+            xpl.plot.contribution_plot(click_data['points'][0]['label'])
+        )
+    else:
+        plot = pn.pane.Plotly(
+            xpl.plot.contribution_plot(xpl.features_imp.idxmax())
+        )
+    return plot
+
+
+material.main.append(
+    pn.Row(
+        pn.Column(
+            header
+        ),
+        pn.Column(
+            pn.Tabs(
+                ('Smart Explainer', 
+                    pn.Column(
+                        plot_features_pane,
+                        contribution_plot
+                        )
+                )
+            )
+        )
+    )
+)
+
+material.servable()
