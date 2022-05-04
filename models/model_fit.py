@@ -12,7 +12,7 @@ class ModelFit():
 
     def call(self):
         regressor = self._fit_regressor()
-        return self._predict(regressor)
+        return regressor, self._predict(regressor)
 
 
     def _fit_regressor(self):
