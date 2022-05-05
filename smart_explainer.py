@@ -33,16 +33,35 @@ plot_features_pane = pn.pane.Plotly(
 )
 
 @pn.depends(plot_features_pane.param.click_data)
-def contribution_plot(click_data):
+def update_plot(click_data):
     if click_data:
         plot = pn.pane.Plotly(
-            xpl.plot.contribution_plot(click_data['points'][0]['label'])
+            xpl.plot.contribution_plot(click_data['points'][0]['label']),
+            config={'responsive': True}
+        )
+        def local_plot(click_data):
+            if click_data:
+                return pn.pane.Plotly(
+                    xpl.plot.local_plot(index=click_data['points'][0]['customdata'])
+                )
+        return pn.Column(
+            plot,
+            pn.depends(click_data=plot.param.click_data)(local_plot)
         )
     else:
         plot = pn.pane.Plotly(
-            xpl.plot.contribution_plot(xpl.features_imp.idxmax())
+            xpl.plot.contribution_plot(xpl.features_imp.idxmax()),
+            config={'responsive': True}
         )
-    return plot
+        def local_plot(click_data):
+            if click_data:
+                return pn.pane.Plotly(
+                    xpl.plot.local_plot(index=click_data['points'][0]['customdata'])
+                )
+        return pn.Column(
+            plot,
+            pn.depends(click_data=plot.param.click_data)(local_plot)
+        )
 
 
 material.main.append(
@@ -55,7 +74,7 @@ material.main.append(
                 ('Smart Explainer', 
                     pn.Column(
                         plot_features_pane,
-                        contribution_plot
+                        update_plot
                         )
                 )
             )
